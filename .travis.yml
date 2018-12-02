@@ -1,0 +1,13 @@
+language: python
+python:
+  - "3.7-dev"
+env:
+  - PIPENV_CACHE_DIR=~/.cache/pipenv
+cache:
+  pip: true
+  directories:
+    - ~/.cache/pipenv
+install:
+  - pip install pipenv
+  - pipenv install --dev
+script: py.test --cov=mailspoof tests/ && codecov
