@@ -17,6 +17,8 @@ def get_args():
         help='a target domain to check, can be passed multiple times')
     parser.add_argument('-iL', '--input-list', type=str,
         help='list of domains to check')
+    parser.add_argument('--version', action='version',
+        version=f'%(prog)s {__version__}')
     args = parser.parse_args()
 
     args.domains = []
