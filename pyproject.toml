@@ -8,6 +8,12 @@ author = "Alex Kaskasoli"
 author-email = "alexkaskasoli@hotmail.com"
 home-page = "https://alex.kaskaso.li/"
 classifiers = ["License :: OSI Approved :: MIT License"]
+requires = [
+    "dnspython == 1.15.0",
+    "tldextract == 2.2.0",
+    "requests == 2.20.1"
+]
+
 
 [tool.flit.scripts]
 mailspoof = "mailspoof:main"
