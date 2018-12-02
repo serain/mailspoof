@@ -1,6 +1,6 @@
 """Scans SPF and DMARC records for issues that could allow email spoofing."""
 
-from .scanners import SPFScan, DMARCScan, Scan
+from .scanners import SPFScan, DMARCScan, Scan, TXTFetch
 
 __version__ = '0.1.1'
 
