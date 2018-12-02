@@ -1,0 +1,13 @@
+[build-system]
+requires = ["flit"]
+build-backend = "flit.buildapi"
+
+[tool.flit.metadata]
+module = "mailspoof"
+author = "Alex Kaskasoli"
+author-email = "alexkaskasoli@hotmail.com"
+home-page = "https://alex.kaskaso.li/"
+classifiers = ["License :: OSI Approved :: MIT License"]
+
+[tool.flit.scripts]
+mailspoof = "mailspoof:main"
