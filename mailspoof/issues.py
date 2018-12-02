@@ -54,26 +54,26 @@ ISSUES = {
                   'validation logic. The affected domains are: {domains}'
     },
     'NO_DMARC': {
-        'code': 1,
+        'code': 7,
         'title': 'No DMARC',
         'detail': 'There is no DMARC DNS record associated for the domain.'
     },
     'DMARC_LAX_POLICY': {
-        'code': 7,
+        'code': 8,
         'title': 'Lax DMARC policy',
         'detail': 'The DMARC policy is set to \'{policy}\'. If the DMARC '
                   'policy is neither \'reject\' nor \'quarantine\', spoofed '
                   'emails are likely to be accepted.'
     },
     'DMARC_LAX_SUBDOMAIN_POLICY': {
-        'code': 8,
+        'code': 9,
         'title': 'Lax DMARC subdomain policy',
         'detail': 'The DMARC policy for subdomains is set to \'{policy}\'. If '
                   'the DMARC policy is neither \'reject\' nor \'quarantine\', '
                   'spoofed emails from subdomains are likely to be accepted.'
     },
     'DMARC_NOT_100_PCT': {
-        'code': 9,
+        'code': 10,
         'title': 'Partial DMARC coverage',
         'detail': 'The DMARC \'pct\' value is \'{pct}\', meaning the DMARC '
                   'policy will only be applied to {pct}% of incoming mail.'
