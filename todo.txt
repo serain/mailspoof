@@ -1,0 +1,15 @@
+## To Do
+
+* Travis build on tagged commits and push to pypi
+
+* Docker image for people who don't have python 3.7
+
+* Add rules for `aspf` and `adkim`.
+
+* Add logging
+
+* Handle DNS NoAnswer, add options for timeout from CLI
+
+* make an alias Scan() -> scan() so we can do mailspoof.scan()
+mailspoof.spfscan()
+mailspoof.dmarcscan()

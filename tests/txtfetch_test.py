@@ -1,12 +1,12 @@
 import pytest
+import dns
 
-from mailspoof import TXTFetch
-
-
-txt_fetch = TXTFetch('v=spf1 ')
+from mailspoof.scanners import TXTFetch
 
 
 def test_fetch(monkeypatch):
+    txt_fetch = TXTFetch('v=spf1 ')
+
     def mock_query(domain, type):
         return [
             'docusign=05958488-4752-4ef2-95eb-aa7ba8a3bd0e',
@@ -18,3 +18,10 @@ def test_fetch(monkeypatch):
 
     spf_record = txt_fetch('google.com')
     assert spf_record == 'v=spf1 include:_spf.google.com ~all'
+
+
+def test_timeout():
+    txt_fetch = TXTFetch('v=spf1 ', timeout=0, lifetime=0)
+
+    with pytest.raises(dns.exception.Timeout):
+        txt_fetch('google.com')

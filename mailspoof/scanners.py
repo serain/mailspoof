@@ -26,9 +26,10 @@ class SPFScan():
     SPFResult
     """
 
-    def __init__(self, whoapi_key=None):
-        self.fetch = TXTFetch('v=spf1 ')
+    def __init__(self, whoapi_key=None, timeout=5):
+        self.fetch = TXTFetch('v=spf1 ', timeout=timeout, lifetime=timeout)
         self.whoapi_key = whoapi_key
+        self.requests_timeout = timeout
 
     def __call__(self, domain):
         """
@@ -136,7 +137,9 @@ class SPFScan():
         domain is open for registration and could be registered by an attacker.
         """
         response = requests.get(WHOAPI_URL.format(domain=domain,
-                                                  key=self.whoapi_key))
+                                                  key=self.whoapi_key,
+                                                  timeout=self.requests_timeout
+                                                  ))
         data = response.json()
         if data['status'] != '0':
             raise Exception(data['status_desc'])
@@ -160,8 +163,8 @@ class DMARCScan():
     security concerns with the DMARC record.
     """
 
-    def __init__(self):
-        self.fetch = TXTFetch('v=DMARC1; ')
+    def __init__(self, timeout=5):
+        self.fetch = TXTFetch('v=DMARC1; ', timeout=timeout, lifetime=timeout)
 
     def __call__(self, domain):
         """
@@ -237,9 +240,9 @@ class Scan():
     security concerns with the SPF and DMARC records.
     """
 
-    def __init__(self):
-        self.spf_check = SPFScan(WHOAPI_KEY)
-        self.dmarc_check = DMARCScan()
+    def __init__(self, timeout=5):
+        self.spf_check = SPFScan(WHOAPI_KEY, timeout=timeout)
+        self.dmarc_check = DMARCScan(timeout=timeout)
 
     def __call__(self, domain):
         """

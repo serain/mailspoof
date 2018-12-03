@@ -1,12 +1,12 @@
 import pytest
+import dns
 
 from mailspoof import DMARCScan
 
 
-dmarc_scan = DMARCScan()
-
-
 def test_good(monkeypatch):
+    dmarc_scan = DMARCScan()
+
     def mock_fetch(domain):
         return 'v=DMARC1; p=reject; rua=mailto:mailauth-reports@google.com'
 
@@ -17,6 +17,8 @@ def test_good(monkeypatch):
 
 
 def test_no_dmarc(monkeypatch):
+    dmarc_scan = DMARCScan()
+
     def mock_fetch(domain):
         raise ValueError()
 
@@ -28,6 +30,8 @@ def test_no_dmarc(monkeypatch):
 
 
 def test_lax_policy_and_low_pct(monkeypatch):
+    dmarc_scan = DMARCScan()
+
     def mock_fetch(domain):
         return 'v=DMARC1; p=none; pct=50'
 
@@ -40,6 +44,8 @@ def test_lax_policy_and_low_pct(monkeypatch):
 
 
 def test_lax_subdomain_policy(monkeypatch):
+    dmarc_scan = DMARCScan()
+
     def mock_fetch(domain):
         return 'v=DMARC1; p=reject; sp=none'
 
@@ -48,3 +54,10 @@ def test_lax_subdomain_policy(monkeypatch):
     issues = dmarc_scan('_dmarc.acme.com')
     assert len(issues) == 1
     assert any(issue['code'] == 9 for issue in issues)
+
+
+def test_timeout():
+    dmarc_scan = DMARCScan(timeout=0)
+
+    with pytest.raises(dns.exception.Timeout):
+        dmarc_scan('google.com')
