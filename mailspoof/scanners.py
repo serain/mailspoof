@@ -177,9 +177,7 @@ class DMARCScan():
 
         try:
             dmarc_record = self.fetch(dmarc_domain)
-        except ValueError:
-            return [ISSUES['NO_DMARC']]
-        except dns.resolver.NXDOMAIN:
+        except (ValueError, dns.resolver.NXDOMAIN, dns.resolver.NoAnswer):
             return [ISSUES['NO_DMARC']]
 
         issues = []
