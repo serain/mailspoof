@@ -1,4 +1,4 @@
-# mailspoof [![PyPI version](https://badge.fury.io/py/mailspoof.svg)](https://badge.fury.io/py/mailspoof) [![docs](https://readthedocs.org/projects/mailspoof/badge/?version=latest)](https://mailspoof.readthedocs.io/en/latest/?badge=latest) [![build](https://travis-ci.com/serain/mailspoof.svg?branch=master)](https://travis-ci.com/serain/mailspoof) [![codecov](https://codecov.io/gh/serain/mailspoof/branch/master/graph/badge.svg)](https://codecov.io/gh/serain/mailspoof/branch/master)
+# mailspoof [![PyPI version](https://badge.fury.io/py/mailspoof.svg)](https://badge.fury.io/py/mailspoof) [![build](https://travis-ci.com/serain/mailspoof.svg?branch=master)](https://travis-ci.com/serain/mailspoof) [![codecov](https://codecov.io/gh/serain/mailspoof/branch/master/graph/badge.svg)](https://codecov.io/gh/serain/mailspoof/branch/master)
 
 > Scans SPF and DMARC records for issues that could allow email spoofing.
 
@@ -55,8 +55,6 @@ $ python
 >>> mailspoof.scan('google.com')
 [{'code': 4, 'title': "'SoftFail' qualifer for 'all' mechanism", 'detail': "The 'all' mechanism uses the 'SoftFail' qualifer '~'. It should be possible to spoof the domain by only causing a soft SPF failure. Most filters will let this through by only raising the total spam score."}]
 ```
-
-Check the docs for details.
 
 ## Checking Unregistered Domains
 
