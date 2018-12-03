@@ -8,6 +8,7 @@ import re
 import dns.resolver
 import tldextract
 import requests
+from functools import wraps
 
 from .issues import ISSUES
 
@@ -250,3 +251,10 @@ class Scan():
         the SPF and DMARC records.
         """
         return self.spf_check(domain) + self.dmarc_check(domain)
+
+
+SCANNER = Scan()
+
+
+def scan(domain):
+    return SCANNER(domain)

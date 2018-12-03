@@ -51,9 +51,8 @@ You can use `mailspoof` in your own Python scripts:
 
 ```
 $ python
->>> from mailspoof import SPFScan, DMARCScan, Scan
->>> scan = Scan()
->>> scan('google.com')
+>>> import mailspoof
+>>> mailspoof.scan('google.com')
 [{'code': 4, 'title': "'SoftFail' qualifer for 'all' mechanism", 'detail': "The 'all' mechanism uses the 'SoftFail' qualifer '~'. It should be possible to spoof the domain by only causing a soft SPF failure. Most filters will let this through by only raising the total spam score."}]
 ```
 
