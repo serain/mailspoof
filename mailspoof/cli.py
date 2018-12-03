@@ -7,7 +7,7 @@ from .scanners import Scan
 __version__ = '0.1.1'
 
 
-def get_args():
+def main():
     parser = argparse.ArgumentParser(prog='mailspoof',
         description='scans SPF and DMARC records for issues that could allow '
                     'email spoofing')
@@ -17,11 +17,13 @@ def get_args():
         help='a target domain to check, can be passed multiple times')
     parser.add_argument('-iL', '--input-list', type=str,
         help='list of domains to check')
-    parser.add_argument('-t', '--timeout', type=int, default='5',
+    parser.add_argument('-t', '--timeout', type=float, default='5',
                         help='timeout value for dns and http requests')
     parser.add_argument('--version', action='version',
         version=f'%(prog)s {__version__}')
+    
     args = parser.parse_args()
+    scan = Scan()
 
     args.domains = []
     if args.input_list:
@@ -30,18 +32,18 @@ def get_args():
     if args.domain:
         args.domains += args.domain
 
-    return args
-
-
-def main():
-    args = get_args()
-    spoof_check = Scan(timeout=args.timeout)
+    if args.timeout:
+        scan.spf_check.timeout = args.timeout
+        scan.spf_check.fetch.resolver.timeout = args.timeout
+        scan.spf_check.fetch.resolver.lifetime = args.timeout
+        scan.dmarc_check.fetch.resolver.timeout = args.timeout
+        scan.dmarc_check.fetch.resolver.lifetime = args.timeout
 
     results = []
     for domain in args.domains:
         results.append({
             'domain': domain,
-            'issues': spoof_check(domain)
+            'issues': scan(domain)
         })
 
     if args.output == '-':

@@ -21,7 +21,9 @@ def test_fetch(monkeypatch):
 
 
 def test_timeout():
-    txt_fetch = TXTFetch('v=spf1 ', timeout=0, lifetime=0)
+    txt_fetch = TXTFetch('v=spf1 ')
+    txt_fetch.resolver.lifetime = 0
+    txt_fetch.resolver.timeout = 0
 
     with pytest.raises(dns.exception.Timeout):
         txt_fetch('google.com')

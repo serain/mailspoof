@@ -57,7 +57,9 @@ def test_lax_subdomain_policy(monkeypatch):
 
 
 def test_timeout():
-    dmarc_scan = DMARCScan(timeout=0)
+    dmarc_scan = DMARCScan()
+    dmarc_scan.fetch.resolver.timeout = 0
+    dmarc_scan.fetch.resolver.lifetime = 0
 
     with pytest.raises(dns.exception.Timeout):
         dmarc_scan('google.com')

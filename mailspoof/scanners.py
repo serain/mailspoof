@@ -11,7 +11,7 @@ import requests
 
 from .issues import ISSUES
 
-
+TIMEOUT = 5
 WHOAPI_URL = 'https://api.whoapi.com/?domain={domain}&r=taken&apikey={key}'
 
 if 'WHOAPI_KEY' in os.environ:
@@ -26,10 +26,10 @@ class SPFScan():
     SPFResult
     """
 
-    def __init__(self, whoapi_key=None, timeout=5):
-        self.fetch = TXTFetch('v=spf1 ', timeout=timeout, lifetime=timeout)
-        self.whoapi_key = whoapi_key
-        self.requests_timeout = timeout
+    def __init__(self):
+        self.fetch = TXTFetch('v=spf1 ')
+        self.whoapi_key = WHOAPI_KEY
+        self.timeout = TIMEOUT
 
     def __call__(self, domain):
         """
@@ -138,7 +138,7 @@ class SPFScan():
         """
         response = requests.get(WHOAPI_URL.format(domain=domain,
                                                   key=self.whoapi_key,
-                                                  timeout=self.requests_timeout
+                                                  timeout=self.timeout
                                                   ))
         data = response.json()
         if data['status'] != '0':
@@ -163,8 +163,8 @@ class DMARCScan():
     security concerns with the DMARC record.
     """
 
-    def __init__(self, timeout=5):
-        self.fetch = TXTFetch('v=DMARC1; ', timeout=timeout, lifetime=timeout)
+    def __init__(self):
+        self.fetch = TXTFetch('v=DMARC1; ')
 
     def __call__(self, domain):
         """
@@ -214,12 +214,12 @@ class TXTFetch():
     given domain.
     """
 
-    def __init__(self, txt_prefix, timeout=5, lifetime=5):
+    def __init__(self, txt_prefix):
         # txt_prefix should be `v=DMARC1; ` or `v=spf1 `
         self.txt_prefix = txt_prefix
         self.resolver = dns.resolver.Resolver()
-        self.resolver.timeout = timeout
-        self.resolver.lifetime = lifetime
+        self.resolver.timeout = TIMEOUT
+        self.resolver.lifetime = TIMEOUT
 
     def __call__(self, domain):
         """
@@ -240,9 +240,9 @@ class Scan():
     security concerns with the SPF and DMARC records.
     """
 
-    def __init__(self, timeout=5):
-        self.spf_check = SPFScan(WHOAPI_KEY, timeout=timeout)
-        self.dmarc_check = DMARCScan(timeout=timeout)
+    def __init__(self):
+        self.spf_check = SPFScan()
+        self.dmarc_check = DMARCScan()
 
     def __call__(self, domain):
         """
