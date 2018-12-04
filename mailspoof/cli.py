@@ -38,7 +38,7 @@ def main():
             args.domains += fh.read().splitlines()
     if args.domain:
         args.domains += args.domain
-    LOG.debug(f'scanning {len(args.domains)} domains')
+    LOG.info(f'scanning {len(args.domains)} domains')
 
     if args.timeout:
         scan.spf_check.timeout = args.timeout
@@ -59,4 +59,4 @@ def main():
     else:
         with open(args.output, 'w+') as fh:
             print(json.dumps(results, indent=2), file=fh)
-            LOG.debug(f'saved output in {args.output}')
+            LOG.info(f'saved output in {args.output}')

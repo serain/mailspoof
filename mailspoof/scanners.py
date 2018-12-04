@@ -14,15 +14,6 @@ from functools import wraps
 from .issues import ISSUES
 
 
-TIMEOUT = 5
-WHOAPI_URL = 'https://api.whoapi.com/?domain={domain}&r=taken&apikey={key}'
-
-if 'WHOAPI_KEY' in os.environ:
-    WHOAPI_KEY = os.environ['WHOAPI_KEY']
-else:
-    WHOAPI_KEY = None
-
-
 LOG = logging.getLogger('mailspoof')
 LOG.setLevel(logging.DEBUG)
 CH = logging.StreamHandler()
@@ -30,6 +21,17 @@ FORMATTER = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - '
                               '%(message)s')
 CH.setFormatter(FORMATTER)
 LOG.addHandler(CH)
+
+
+TIMEOUT = 5
+WHOAPI_URL = 'https://api.whoapi.com/?domain={domain}&r=taken&apikey={key}'
+
+if 'WHOAPI_KEY' in os.environ:
+    LOG.debug('found WHOAPI_KEY, will check if domains are registered')
+    WHOAPI_KEY = os.environ['WHOAPI_KEY']
+else:
+    LOG.debug('no WHOAPI_KEY, will not check if domains are registered')
+    WHOAPI_KEY = None
 
 
 class SPFScan():
@@ -49,11 +51,15 @@ class SPFScan():
         concerns with the SPF record.
         """
 
+        LOG.debug(f'checking SPF for {domain}')
+
         try:
             spf_record = self.fetch(domain)
         except ValueError:
+            LOG.debug(f'no spf record for {domain}')
             return [ISSUES['NO_SPF']]
         except dns.resolver.NXDOMAIN:
+            LOG.debug(f'non-existant domain {domain}')
             issue = dict(ISSUES['NX_DOMAIN'])
             issue['detail'] = issue['detail'].format(domain=domain)
             return [issue]
@@ -90,6 +96,7 @@ class SPFScan():
         if self.whoapi_key:
             for included_domain in included_domains:
                 if not self._domain_taken(included_domain):
+                    LOG.info(f'found unregistered domain {included_domain}')
                     free_domains.add(included_domain)
 
         if free_domains:
@@ -189,11 +196,14 @@ class DMARCScan():
         the DMARC record.
         """
 
+        LOG.debug(f'checking DMARC for {domain}')
+
         dmarc_domain = f'_dmarc.{domain}'
 
         try:
             dmarc_record = self.fetch(dmarc_domain)
         except (ValueError, dns.resolver.NXDOMAIN, dns.resolver.NoAnswer):
+            LOG.debug(f'no DMARC record for domain {domain}')
             return [ISSUES['NO_DMARC']]
         except dns.exception.Timeout:
             LOG.warning(f'dns timeout for {domain}')
