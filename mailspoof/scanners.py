@@ -8,9 +8,11 @@ import re
 import dns.resolver
 import tldextract
 import requests
+import logging
 from functools import wraps
 
 from .issues import ISSUES
+
 
 TIMEOUT = 5
 WHOAPI_URL = 'https://api.whoapi.com/?domain={domain}&r=taken&apikey={key}'
@@ -19,6 +21,16 @@ if 'WHOAPI_KEY' in os.environ:
     WHOAPI_KEY = os.environ['WHOAPI_KEY']
 else:
     WHOAPI_KEY = None
+
+
+logger = logging.getLogger('mailspoof')
+logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - '
+                              '%(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
 
 
 class SPFScan():
@@ -44,6 +56,11 @@ class SPFScan():
             return [ISSUES['NO_SPF']]
         except dns.resolver.NXDOMAIN:
             issue = dict(ISSUES['NX_DOMAIN'])
+            issue['detail'] = issue['detail'].format(domain=domain)
+            return [issue]
+        except dns.exception.Timeout:
+            logger.debug(f'dns timeout for {domain}')
+            issue = dict(ISSUES['DNS_TIMEOUT'])
             issue['detail'] = issue['detail'].format(domain=domain)
             return [issue]
 
@@ -179,6 +196,11 @@ class DMARCScan():
             dmarc_record = self.fetch(dmarc_domain)
         except (ValueError, dns.resolver.NXDOMAIN, dns.resolver.NoAnswer):
             return [ISSUES['NO_DMARC']]
+        except dns.exception.Timeout:
+            logger.debug(f'dns timeout for {domain}')
+            issue = dict(ISSUES['DNS_TIMEOUT'])
+            issue['detail'] = issue['detail'].format(domain=domain)
+            return [issue]
 
         issues = []
         terms = [term.strip(' ') for term in dmarc_record.split(';')]

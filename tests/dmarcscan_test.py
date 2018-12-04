@@ -61,5 +61,7 @@ def test_timeout():
     dmarc_scan.fetch.resolver.timeout = 0
     dmarc_scan.fetch.resolver.lifetime = 0
 
-    with pytest.raises(dns.exception.Timeout):
-        dmarc_scan('google.com')
+    issues = dmarc_scan('_dmarc.acme.com')
+
+    assert len(issues) == 1
+    assert any(issue['code'] == 11 for issue in issues)

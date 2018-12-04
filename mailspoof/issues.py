@@ -78,4 +78,9 @@ ISSUES = {
         'detail': 'The DMARC \'pct\' value is \'{pct}\', meaning the DMARC '
                   'policy will only be applied to {pct}% of incoming mail.'
     },
+    'DNS_TIMEOUT': {
+        'code': 11,
+        'title': 'DNS Timeout during Scan',
+        'detail': 'There was a DNS timeout when querying \'{domain}\''
+    }
 }
