@@ -6,6 +6,7 @@ from .scanners import Scan
 
 
 __version__ = '0.1.1'
+LOG = logging.getLogger('mailspoof')
 
 
 def main():
@@ -20,17 +21,16 @@ def main():
         help='list of domains to check')
     parser.add_argument('-t', '--timeout', type=float, default='5',
                         help='timeout value for dns and http requests')
-    parser.add_argument('--debug', action='store_true',
-                        help='enable debug logging')
+    parser.add_argument('-v', '--verbose', action='store_true',
+                        help='enable verbose logging')
     parser.add_argument('--version', action='version',
         version=f'%(prog)s {__version__}')
     
     args = parser.parse_args()
     scan = Scan()
 
-    if args.debug:
-        logger = logging.getLogger('mailspoof')
-        logger.setLevel(logging.DEBUG)
+    if args.verbose:
+        LOG.setLevel(logging.DEBUG)
 
     args.domains = []
     if args.input_list:
@@ -38,6 +38,7 @@ def main():
             args.domains += fh.read().splitlines()
     if args.domain:
         args.domains += args.domain
+    LOG.debug(f'scanning {len(args.domains)} domains')
 
     if args.timeout:
         scan.spf_check.timeout = args.timeout
@@ -58,3 +59,4 @@ def main():
     else:
         with open(args.output, 'w+') as fh:
             print(json.dumps(results, indent=2), file=fh)
+            LOG.debug(f'saved output in {args.output}')
