@@ -55,7 +55,7 @@ class SPFScan():
 
         try:
             spf_record = self.fetch(domain)
-        except ValueError:
+        except (ValueError, dns.resolver.NoAnswer, dns.resolver.NoNameservers):
             LOG.debug(f'no spf record for {domain}')
             return [ISSUES['NO_SPF']]
         except dns.resolver.NXDOMAIN:
@@ -124,9 +124,11 @@ class SPFScan():
 
             try:
                 spf_record = self.fetch(domain)
-            except ValueError:
+            except (ValueError, dns.resolver.NoAnswer, dns.resolver.NXDOMAIN,
+                    dns.resolver.NoNameservers):
                 return
-            except dns.resolver.NXDOMAIN:
+            except dns.exception.Timeout:
+                LOG.warning(f'dns timeout for {domain}')
                 return
 
             terms = spf_record.split(' ')
@@ -202,7 +204,8 @@ class DMARCScan():
 
         try:
             dmarc_record = self.fetch(dmarc_domain)
-        except (ValueError, dns.resolver.NXDOMAIN, dns.resolver.NoAnswer):
+        except (ValueError, dns.resolver.NXDOMAIN, dns.resolver.NoAnswer,
+                dns.resolver.NoNameservers):
             LOG.debug(f'no DMARC record for domain {domain}')
             return [ISSUES['NO_DMARC']]
         except dns.exception.Timeout:
