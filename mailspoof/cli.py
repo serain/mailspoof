@@ -1,4 +1,5 @@
 import json
+import logging
 import argparse
 
 from .scanners import Scan
@@ -19,11 +20,17 @@ def main():
         help='list of domains to check')
     parser.add_argument('-t', '--timeout', type=float, default='5',
                         help='timeout value for dns and http requests')
+    parser.add_argument('--debug', action='store_true',
+                        help='enable debug logging')
     parser.add_argument('--version', action='version',
         version=f'%(prog)s {__version__}')
     
     args = parser.parse_args()
     scan = Scan()
+
+    if args.debug:
+        logger = logging.getLogger('mailspoof')
+        logger.setLevel(logging.DEBUG)
 
     args.domains = []
     if args.input_list:

@@ -23,14 +23,13 @@ else:
     WHOAPI_KEY = None
 
 
-logger = logging.getLogger('mailspoof')
-logger.setLevel(logging.DEBUG)
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - '
+LOG = logging.getLogger('mailspoof')
+LOG.setLevel(logging.DEBUG)
+CH = logging.StreamHandler()
+FORMATTER = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - '
                               '%(message)s')
-ch.setFormatter(formatter)
-logger.addHandler(ch)
+CH.setFormatter(FORMATTER)
+LOG.addHandler(CH)
 
 
 class SPFScan():
@@ -59,7 +58,7 @@ class SPFScan():
             issue['detail'] = issue['detail'].format(domain=domain)
             return [issue]
         except dns.exception.Timeout:
-            logger.debug(f'dns timeout for {domain}')
+            LOG.warning(f'dns timeout for {domain}')
             issue = dict(ISSUES['DNS_TIMEOUT'])
             issue['detail'] = issue['detail'].format(domain=domain)
             return [issue]
@@ -197,7 +196,7 @@ class DMARCScan():
         except (ValueError, dns.resolver.NXDOMAIN, dns.resolver.NoAnswer):
             return [ISSUES['NO_DMARC']]
         except dns.exception.Timeout:
-            logger.debug(f'dns timeout for {domain}')
+            LOG.warning(f'dns timeout for {domain}')
             issue = dict(ISSUES['DNS_TIMEOUT'])
             issue['detail'] = issue['detail'].format(domain=domain)
             return [issue]
