@@ -55,7 +55,8 @@ class SPFScan():
         LOG.debug(f'checking SPF for {domain}')
 
         try:
-            spf_record = self.fetch(domain)
+            # some big spf records come with double quotes to split them up
+            spf_record = self.fetch(domain).replace('"', '')
         except (ValueError, dns.resolver.NoAnswer, dns.resolver.NoNameservers):
             LOG.debug(f'no spf record for {domain}')
             return [ISSUES['NO_SPF']]
