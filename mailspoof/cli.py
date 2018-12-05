@@ -35,7 +35,9 @@ def main():
     args.domains = []
     if args.input_list:
         with open(args.input_list) as fh:
-            args.domains += fh.read().splitlines()
+            for line in fh.read().splitlines():
+                if not line.startswith('#'):
+                    args.domains.append(line)
     if args.domain:
         args.domains += args.domain
     LOG.info(f'scanning {len(args.domains)} domains')
