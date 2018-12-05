@@ -71,7 +71,6 @@ class SPFScan():
             return [issue]
 
         issues = []
-        terms = spf_record.split(' ')
 
         # recursively count the number of lookups and get the domains used
         try:
@@ -88,20 +87,27 @@ class SPFScan():
             issues.append(ISSUES['SPF_LOOKUP_ERROR'])
 
         # check for any free domains
-        free_domains = set()
         if self.whoapi_key:
+            free_domains = set()
             for included_domain in included_domains:
-                if not self._domain_taken(included_domain):
-                    LOG.info(f'found unregistered domain {included_domain}')
-                    free_domains.add(included_domain)
+                try:
+                    taken = self._domain_taken(included_domain)
+                    if not taken:
+                        LOG.info('found unregistered domain '
+                                 f'{included_domain}')
+                        free_domains.add(included_domain)
+                except exceptions.WHOAPIException as exception:
+                    LOG.error(f'whoapi error on {included_domain}: '
+                              f'{str(exception)}')
 
-        if free_domains:
-            issue = dict(ISSUES['SPF_UNREGISTERED_DOMAINS'])
-            issue['detail'] = issue['detail'].format(domains=', '.join(
-                list(free_domains)))
-            issues.append(issue)
+            if free_domains:
+                issue = dict(ISSUES['SPF_UNREGISTERED_DOMAINS'])
+                issue['detail'] = issue['detail'].format(domains=', '.join(
+                    list(free_domains)))
+                issues.append(issue)
 
         # check the 'all' mechanism
+        terms = spf_record.split(' ')
         all_qualifier = None
         all_match = re.match(r'^([-?~+])all$', terms[-1])
         if all_match:
@@ -181,7 +187,7 @@ class SPFScan():
                                                   ))
         data = response.json()
         if data['status'] != '0':
-            raise Exception(data['status_desc'])
+            raise exceptions.WHOAPIException(data['status_desc'])
         return True if data['taken'] else False
 
     @staticmethod
