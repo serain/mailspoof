@@ -81,6 +81,12 @@ ISSUES = {
     'DNS_TIMEOUT': {
         'code': 11,
         'title': 'DNS Timeout during Scan',
-        'detail': 'There was a DNS timeout when querying \'{domain}\''
+        'detail': 'There was a DNS timeout when querying \'{domain}\'.'
+    },
+    'SPF_RECURSE': {
+        'code': 12,
+        'title': 'Trivial SPF recurse',
+        'detail': 'Infinite recurse loop with the domain {recursive_domain} '
+                  'included in the validation chain for {domain}'
     }
 }

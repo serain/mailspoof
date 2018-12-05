@@ -11,6 +11,7 @@ import requests
 import logging
 from functools import wraps
 
+from . import exceptions
 from .issues import ISSUES
 
 
@@ -72,21 +73,16 @@ class SPFScan():
         issues = []
         terms = spf_record.split(' ')
 
-        # check the 'all' mechanism
-        all_qualifier = None
-        all_match = re.match(r'^([-?~+])all$', terms[-1])
-        if all_match:
-            all_qualifier = all_match.group(1)
-
-        if not all_qualifier:
-            issues.append(ISSUES['SPF_NO_ALL'])
-        elif all_qualifier == '+':
-            issues.append(ISSUES['SPF_PASS_ALL'])
-        elif all_qualifier == '~':
-            issues.append(ISSUES['SPF_SOFT_FAIL_ALL'])
-
         # recursively count the number of lookups and get the domains used
-        included_domains, nb_lookups = self._get_include_domains(domain)
+        try:
+            included_domains, nb_lookups = self._get_include_domains(domain)
+        except exceptions.SPFRecurse as exception:
+            issue = ISSUES['SPF_RECURSE']
+            issue['detail'] = issue['detail'].format(
+                recursive_domain=exception.recursive_domain,
+                domain=domain)
+            issues.append(issue)
+            return [issue]
 
         if nb_lookups > 10:
             issues.append(ISSUES['SPF_LOOKUP_ERROR'])
@@ -104,6 +100,19 @@ class SPFScan():
             issue['detail'] = issue['detail'].format(domains=', '.join(
                 list(free_domains)))
             issues.append(issue)
+
+        # check the 'all' mechanism
+        all_qualifier = None
+        all_match = re.match(r'^([-?~+])all$', terms[-1])
+        if all_match:
+            all_qualifier = all_match.group(1)
+
+        if not all_qualifier:
+            issues.append(ISSUES['SPF_NO_ALL'])
+        elif all_qualifier == '+':
+            issues.append(ISSUES['SPF_PASS_ALL'])
+        elif all_qualifier == '~':
+            issues.append(ISSUES['SPF_SOFT_FAIL_ALL'])
 
         return issues
 
@@ -139,6 +148,10 @@ class SPFScan():
                     continue
 
                 mechanism, value = term.split(':', 1)
+
+                if value == domain:
+                    raise exceptions.SPFTRecurse('trivial recurse in '
+                                                 f'{domain}', value)
 
                 if mechanism == 'include':
                     nb_lookups += 1
