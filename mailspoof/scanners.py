@@ -157,7 +157,7 @@ class SPFScan():
                 mechanism, value = term.split(':', 1)
 
                 if value == domain:
-                    raise exceptions.SPFTRecurse('trivial recurse in '
+                    raise exceptions.SPFRecurse('trivial recurse in '
                                                  f'{domain}', value)
 
                 if mechanism == 'include':
