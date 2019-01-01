@@ -8,7 +8,7 @@ Email spoofing is alive and well. Many organisations' SPF and DMARC records do n
 
 `mailspoof` can be used by organisations, pentesters and red-teamers to quickly sift through a large list of domains for lax SPF and DMARC policies.
 
-In other cases `mailspoof` could highlight spoofable external domains that employees are likely to trust, such as suppliers gathered from OSINT or other known organisations.
+In some cases `mailspoof` could highlight spoofable external domains that employees are likely to trust, such as suppliers gathered from OSINT or other known organisations.
 
 Email spoofing may be successful against recipients that manage their filtering themselves. Large email providers like GMail have the big data and the heuristics to efficiently handle spam. For example, GMail will likely forward a spoofed email from a common domain directly to the spam folder, even if the email doesn't fail validation due to lax policies.
 
