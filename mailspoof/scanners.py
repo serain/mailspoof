@@ -114,12 +114,13 @@ class SPFScan():
         if all_match:
             all_qualifier = all_match.group(1)
 
-        if not all_qualifier:
-            issues.append(ISSUES['SPF_NO_ALL'])
-        elif all_qualifier == '+':
-            issues.append(ISSUES['SPF_PASS_ALL'])
-        elif all_qualifier == '~':
-            issues.append(ISSUES['SPF_SOFT_FAIL_ALL'])
+        if not "redirect" in terms: #If redirect, the SPF policy of the other domain will be applied
+            if not all_qualifier:
+                issues.append(ISSUES['SPF_NO_ALL'])
+            elif all_qualifier == '+':
+                issues.append(ISSUES['SPF_PASS_ALL'])
+            elif all_qualifier == '~':
+                issues.append(ISSUES['SPF_SOFT_FAIL_ALL'])
 
         return issues
 
@@ -160,7 +161,7 @@ class SPFScan():
                     raise exceptions.SPFRecurse('trivial recurse in '
                                                  f'{domain}', value)
 
-                if mechanism == 'include':
+                if mechanism in ['include', 'redirect']:
                     nb_lookups += 1
                     includes.append(value)
                     domains.add(self._get_registered_domain(value))
