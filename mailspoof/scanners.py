@@ -210,7 +210,7 @@ class DMARCScan():
     """
 
     def __init__(self):
-        self.fetch = TXTFetch('v=DMARC1; ')
+        self.fetch = TXTFetch('v=DMARC1;')
 
     def __call__(self, domain):
         """
