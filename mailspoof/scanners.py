@@ -75,7 +75,7 @@ class SPFScan():
 
         # recursively count the number of lookups and get the domains used
         try:
-            included_domains, nb_lookups = self._get_include_domains(domain)
+            included_domains, nb_lookups = self._get_include_domains(domain, nameserver)
         except exceptions.SPFRecurse as exception:
             issue = ISSUES['SPF_RECURSE']
             issue['detail'] = issue['detail'].format(
@@ -124,7 +124,7 @@ class SPFScan():
 
         return issues
 
-    def _get_include_domains(self, domain):
+    def _get_include_domains(self, domain, nameserver):
         """
         Recursively goes through the domain's SPF record and included SPF
         records. Returns a tuple of the root domains encountered and
@@ -140,7 +140,7 @@ class SPFScan():
             nonlocal domains
 
             try:
-                spf_record = self.fetch(domain)
+                spf_record = self.fetch(domain, nameserver)
             except (ValueError, dns.resolver.NoAnswer, dns.resolver.NXDOMAIN,
                     dns.resolver.NoNameservers):
                 return
