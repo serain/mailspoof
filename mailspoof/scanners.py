@@ -46,7 +46,7 @@ class SPFScan():
         self.whoapi_key = WHOAPI_KEY
         self.timeout = TIMEOUT
 
-    def __call__(self, domain):
+    def __call__(self, domain, nameserver):
         """
         Returns a list of dictionaries ("issues") highlighting security
         concerns with the SPF record.
@@ -56,7 +56,7 @@ class SPFScan():
 
         try:
             # some big spf records come with double quotes to split them up
-            spf_record = self.fetch(domain).replace('"', '')
+            spf_record = self.fetch(domain, nameserver).replace('"', '')
         except (ValueError, dns.resolver.NoAnswer, dns.resolver.NoNameservers):
             LOG.debug(f'no spf record for {domain}')
             return [ISSUES['NO_SPF']]
@@ -75,7 +75,7 @@ class SPFScan():
 
         # recursively count the number of lookups and get the domains used
         try:
-            included_domains, nb_lookups = self._get_include_domains(domain)
+            included_domains, nb_lookups = self._get_include_domains(domain, nameserver)
         except exceptions.SPFRecurse as exception:
             issue = ISSUES['SPF_RECURSE']
             issue['detail'] = issue['detail'].format(
@@ -124,7 +124,7 @@ class SPFScan():
 
         return issues
 
-    def _get_include_domains(self, domain):
+    def _get_include_domains(self, domain, nameserver):
         """
         Recursively goes through the domain's SPF record and included SPF
         records. Returns a tuple of the root domains encountered and
@@ -140,7 +140,7 @@ class SPFScan():
             nonlocal domains
 
             try:
-                spf_record = self.fetch(domain)
+                spf_record = self.fetch(domain, nameserver)
             except (ValueError, dns.resolver.NoAnswer, dns.resolver.NXDOMAIN,
                     dns.resolver.NoNameservers):
                 return
@@ -213,7 +213,7 @@ class DMARCScan():
     def __init__(self):
         self.fetch = TXTFetch('v=DMARC1;')
 
-    def __call__(self, domain):
+    def __call__(self, domain, nameserver):
         """
         Returns a list of Issues highlighting potential security issues with
         the DMARC record.
@@ -224,7 +224,7 @@ class DMARCScan():
         dmarc_domain = f'_dmarc.{domain}'
 
         try:
-            dmarc_record = self.fetch(dmarc_domain)
+            dmarc_record = self.fetch(dmarc_domain, nameserver)
         except (ValueError, dns.resolver.NXDOMAIN, dns.resolver.NoAnswer,
                 dns.resolver.NoNameservers):
             LOG.debug(f'no DMARC record for domain {domain}')
@@ -275,10 +275,13 @@ class TXTFetch():
         self.resolver.timeout = TIMEOUT
         self.resolver.lifetime = TIMEOUT
 
-    def __call__(self, domain):
+    def __call__(self, domain, nameserver):
         """
         Fetches a DNS TXT record with a certain prefix for a given domain.
         """
+        if nameserver:
+            self.resolver.nameserver = nameserver
+
         txt_records = self.resolver.query(domain, 'TXT')
         for txt_record in txt_records:
             value = str(txt_record).strip('"')
@@ -298,16 +301,16 @@ class Scan():
         self.spf_check = SPFScan()
         self.dmarc_check = DMARCScan()
 
-    def __call__(self, domain):
+    def __call__(self, domain, nameserver):
         """
         Returns a list of Issues highlighting potential security issues with
         the SPF and DMARC records.
         """
-        return self.spf_check(domain) + self.dmarc_check(domain)
+        return self.spf_check(domain, nameserver) + self.dmarc_check(domain, nameserver)
 
 
 SCANNER = Scan()
 
 
-def scan(domain):
-    return SCANNER(domain)
+def scan(domain, nameserver=None):
+    return SCANNER(domain, nameserver)

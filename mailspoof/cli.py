@@ -21,11 +21,13 @@ def main():
         help='list of domains to check')
     parser.add_argument('-t', '--timeout', type=float, default='5',
                         help='timeout value for dns and http requests')
+    parser.add_argument('-s', '--nameserver', type=str, action="append",
+                        help="nameserver to use")
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='enable verbose logging')
     parser.add_argument('--version', action='version',
         version=f'%(prog)s {__version__}')
-    
+
     args = parser.parse_args()
     scan = Scan()
 
@@ -53,7 +55,7 @@ def main():
     for domain in args.domains:
         results.append({
             'domain': domain,
-            'issues': scan(domain)
+            'issues': scan(domain, args.nameserver)
         })
 
     if args.output == '-':
